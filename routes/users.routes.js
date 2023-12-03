@@ -5,7 +5,6 @@ const { bearerAuth } = require("../middleware/auth");
 module.exports = app => {
     router.get("/", controller.getAll);
     router.post("/", controller.create);
-    router.post("/login", controller.login);
 
     app.use("/users", bearerAuth, router);
 };

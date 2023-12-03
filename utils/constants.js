@@ -1,1 +1,2 @@
-module.exports = { USER_STATUSES: { online: "online", offline: "offline" } };
+require("dotenv/config");
+module.exports = { ENV: process.env, USER_STATUSES: { online: "online", offline: "offline" } };
