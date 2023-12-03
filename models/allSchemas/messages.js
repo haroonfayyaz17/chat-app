@@ -1,28 +1,37 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const {MESSAGE_TYPES} = require('../../utils/constants');
+const {getMsgRefModel} = require('../../utils/modelHelpers');
 
-const readReceiptSchema = mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
-    timestamp: { type: Date, default: Date.now },
-});
+const readReceiptSchema = mongoose.Schema(
+    {
+      user: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
+      timestamp: {type: Date, default: Date.now},
+    },
+    {_id: false},
+);
 
-const Messages = mongoose.model("Messages", {
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
-    receiver: {
+const messageSchena = mongoose.Schema(
+    {
+      sender: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
+      receiver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: function () {
-            // Dynamically reference either User or Group based on the type
-            return this.type === "individual" ? "Users" : "Groups";
+        ref: function() {
+          // Dynamically reference either User or Group based on the type
+          return getMsgRefModel(this);
         },
-    },
-    group: { type: mongoose.Schema.Types.ObjectId, ref: "Groups" },
-    content: String,
-    type: {
+      },
+      content: String,
+      type: {
         type: String,
-        enum: ["individual", "group"], // Specify the allowed message types
+        enum: Object.values(MESSAGE_TYPES), // Specify the allowed message types
         required: true,
+      },
+      timestamp: {type: Date, default: Date.now},
+      readReceipts: [readReceiptSchema],
     },
-    timestamp: { type: Date, default: Date.now },
-    readReceipts: readReceiptSchema,
-});
+    {discriminatorKey: 'type'},
+);
+
+const Messages = mongoose.model('Messages', messageSchena);
 
 module.exports = Messages;
